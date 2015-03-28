@@ -19,9 +19,9 @@ void setup() {
   //  object.printAttributes();
 
 
-  //getRelTypeEdgesOf(REL_IS_A, "end", "/c/en/person/n");//"/c/en/person");
-  
-  getSomeEdgeOf(true, REL_IS_A, "end", "/c/en/person", 1, 0);// (int)random(1,100)); //limit of 1000, offset of 0
+
+  int total = getNumFound(true, REL_IS_A, "end", "/c/en/person/n", 100, 100);
+  getSomeEdgeOf(true, REL_IS_A, "end", "/c/en/person/n", 100,99);// (int)random(1,100)); //limit of 1000, offset of 0
   listUnownedEdgesNames();
 
 //  getRelTypeEdgeOf(false, REL_IS_A, "end", "/c/en/person", 100, 0); //limit of 1000, offset of 0
@@ -99,7 +99,8 @@ public void getSomeEdgeOf(boolean relTrue, String pathRel, String startOrEnd, St
 
 public int getNumFound(boolean relTrue, String pathRel, String startOrEnd, String otherObject, int limitNum, int offsetNum) {
   unownedJson = loadJSONObject(getPath(otherObject, relTrue, pathRel, startOrEnd, limitNum, offsetNum));
-  return 0; 
+  int numFound = unownedJson.getInt("numFound");
+  return numFound; 
 } 
 
 public void listUnownedEdgesNames() { 
