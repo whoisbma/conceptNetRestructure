@@ -1,4 +1,4 @@
-final int edgeLimit = 50; 
+final int edgeLimit = 3; 
 final String path = "http://conceptnet5.media.mit.edu/data/5.2";
 
 final String REL_IS_A = "/r/IsA";
@@ -10,6 +10,11 @@ final String TARGET = "money";
 Edge[] unownedEdges;
 JSONObject unownedJson;
 
+int levelDepth = 5;
+
+int[] resultsTracker = new int[levelDepth];
+ArrayList<int[]> successes;
+
 //CNObject object;
 
 void setup() { 
@@ -17,31 +22,45 @@ void setup() {
   background(#EEEEEE); 
   frameRate(30);
 
+  for (int i = 0; i < resultsTracker.length; i++) {
+    resultsTracker[i] = 0;  //just double-checking....
+  } 
+  
+  successes = new ArrayList<int[]>();
+
   Edge[] personGroup = getPersonGroup(10,10,10); 
   int whichPerson = (int)random(personGroup.length);
   println("Chosen person is " + personGroup[whichPerson].newName);
   String chosenStart = personGroup[whichPerson].finalPath;
   println(chosenStart);
   
-  //getEdgesAndCheck(chosenStart);
-  recurseCheck(5, chosenStart);
+  recurseCheck(levelDepth, chosenStart);
+  
+  println(successes.size());
 }
 
 
 //start with "person" path
   //get all edges related to Person
     //for each Person edge, get all Edges
-      //for each of those edges, get all Edges
-        //for each of those edges, get all Edges
-           //for each of those edges, get all Edges
+      //for each of those edges, etc.
+
+//create an array of numbers to store each path chosen. -i.e. results[8], results[124], results[13], --> 8, 124, 13
+//until a success is registered. get the level depth at that point, and push the array of numbers to an arraylist of success cases
+
+//resultsTracking[level1,level2,level3,level4,
 
 public void recurseCheck(int level, String conceptPath) {
   Edge[] results = getSomeEdgeOf(false, "", "", conceptPath, edgeLimit, 0);
   for (int i = 0; i < results.length; i++) {
+    resultsTracker[levelDepth-level] = i; 
     if (results[i].finalPath.contains(TARGET)) {
       println("SUCCESS!!! at " + results[i].newName);
+      //println(resultsTracker); 
+      successes.add(resultsTracker); 
     } else { 
       println("not found at " + results[i].newName);
+      //println(resultsTracker); 
     }
   }
   if (level > 1) { 
