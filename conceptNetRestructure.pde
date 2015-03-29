@@ -1,8 +1,11 @@
-final int edgeLimit = 10; 
+final int edgeLimit = 50; 
 final String path = "http://conceptnet5.media.mit.edu/data/5.2";
 
 final String REL_IS_A = "/r/IsA";
 final String REL_USED_FOR = "/r/UsedFor";
+
+//final String TARGET = "/c/en/money";
+final String TARGET = "money";
 
 Edge[] unownedEdges;
 JSONObject unownedJson;
@@ -13,31 +16,68 @@ void setup() {
   size(400, 400); 
   background(#EEEEEE); 
   frameRate(30);
-  //object = new CNObject("/c/en/human", "human");
-  //  object.getAllEdges();
-  //  object.listEdges();
-  //  object.printAttributes();
 
   Edge[] personGroup = getPersonGroup(10,10,10); 
   int whichPerson = (int)random(personGroup.length);
   println("Chosen person is " + personGroup[whichPerson].newName);
+  String chosenStart = personGroup[whichPerson].finalPath;
+  println(chosenStart);
+  
+  //getEdgesAndCheck(chosenStart);
+  recurseCheck(5, chosenStart);
 }
+
+
+//start with "person" path
+  //get all edges related to Person
+    //for each Person edge, get all Edges
+      //for each of those edges, get all Edges
+        //for each of those edges, get all Edges
+           //for each of those edges, get all Edges
+
+public void recurseCheck(int level, String conceptPath) {
+  Edge[] results = getSomeEdgeOf(false, "", "", conceptPath, edgeLimit, 0);
+  for (int i = 0; i < results.length; i++) {
+    if (results[i].finalPath.contains(TARGET)) {
+      println("SUCCESS!!! at " + results[i].newName);
+    } else { 
+      println("not found at " + results[i].newName);
+    }
+  }
+  if (level > 1) { 
+    level--;
+    for (int i = 0; i < results.length; i++) {
+      recurseCheck(level, results[i].finalPath);
+    }
+  } 
+} 
+
+//public void getEdgesAndCheck(String currentConcept) { 
+//  Edge[] results = getSomeEdgeOf(false, "", "", currentConcept, 10, 0); 
+//  listEdgeNames(results);
+//  for (int i = 0; i < results.length; i++) {
+//    if (results[i].equals(TARGET)) {
+//      println("SUCCESS!!! at " + results[i]);
+//    } 
+//  }
+//}
+
 
 public Edge[] getPersonGroup(int tot1, int tot2, int tot3) {
   Edge[] personGroup1 = getSomeEdgeOf(true, REL_IS_A, "end", "/c/en/person/n", tot1, 0);
   Edge[] personGroup2 = getSomeEdgeOf(true, REL_IS_A, "end", "/c/en/person", tot2, 0);
   Edge[] personGroup3 = getSomeEdgeOf(true, REL_IS_A, "end", "/c/en/human", tot3, 0);
-  println("- GROUP 1 -");
-  listEdgeNames(personGroup1);
-  println("- GROUP 2 -");
-  listEdgeNames(personGroup2);
-  println("- GROUP 3 -");
-  listEdgeNames(personGroup3);
+//  println("- GROUP 1 -");
+//  listEdgeNames(personGroup1);
+//  println("- GROUP 2 -");
+//  listEdgeNames(personGroup2);
+//  println("- GROUP 3 -");
+//  listEdgeNames(personGroup3);
 
   Edge[] personSubTotal = (Edge[])concat(personGroup1, personGroup2);
   Edge[] personTotal = (Edge[])concat(personSubTotal, personGroup3);
-  println("- TOTAL -");
-  listEdgeNames(personTotal);
+//  println("- TOTAL -");
+//  listEdgeNames(personTotal);
   return personTotal;
 } 
 
@@ -61,7 +101,7 @@ public String getPath(String searchObject, boolean relTrue, String relString, St
   if (!relTrue && offsetNum > 0) {//offsetTrue) {
     newPath = path + searchObject + "?limit=" + limitNum + "&offset=" + offsetNum + "&filter=/c/en";
   } 
-  println("calculated path is " + newPath); 
+  //println("calculated path is " + newPath); 
   return newPath;
 } 
 
@@ -72,6 +112,7 @@ public Edge[] getSomeEdgeOf(boolean relTrue, String pathRel, String startOrEnd, 
   JSONObject edge;
   String startLemmas, endLemmas, start, end, rel;
   String newName = "";
+  String finalPath = "";
   Edge[] theseEdges = new Edge[jsonEdges.size()];
 
   for (int i = 0; i < theseEdges.length; i++) { 
@@ -86,15 +127,18 @@ public Edge[] getSomeEdgeOf(boolean relTrue, String pathRel, String startOrEnd, 
       String splitString[] = split(start, "/");
       //println(splitString[3] + " (start)");
       newName = splitString[3];
+      finalPath = start;
     } else if (start.contains(otherObject)) {
       String splitString[] = split(end, "/");
       //println(splitString[3] + " (end)");
       newName = splitString[3];
+      finalPath = end;
     } else { 
       newName = "???";
+      finalPath = "???";
     }
 
-    theseEdges[i] = new Edge(startLemmas, endLemmas, start, end, rel, newName);
+    theseEdges[i] = new Edge(startLemmas, endLemmas, start, end, rel, newName, finalPath);
   }
   return theseEdges;
 }
@@ -108,16 +152,6 @@ public int getNumFound(boolean relTrue, String pathRel, String startOrEnd, Strin
 public void listEdgeNames(Edge[] edges) { 
   for (int i = 0; i < edges.length; i++) {
     println(edges[i].newName);
-  }
-} 
-
-//---THIS ONE IS KINDA USELESS NOW IN LIGHT OF listUnownedEdgesNames()
-public void listUnownedEdges() { 
-  for (int i = 0; i < unownedEdges.length; i++) {
-    print(unownedEdges[i].start + " -- ");
-    print(unownedEdges[i].startLemmas + " --> "); 
-    print(unownedEdges[i].end + " -- ");
-    println(unownedEdges[i].endLemmas);
   }
 } 
 

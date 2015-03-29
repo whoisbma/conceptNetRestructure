@@ -8,8 +8,9 @@ class Edge {
   public String rel; //language independent relations
   public boolean isStart = true;
   public String newName = "";
+  public String finalPath = "";
 
-  public Edge(String startLemmas, String endLemmas, String start, String end, String rel, String newName) {
+  public Edge(String startLemmas, String endLemmas, String start, String end, String rel, String newName, String finalPath) {
     this.startLemmas = startLemmas;
     this.endLemmas = endLemmas;
     this.start = start;
@@ -29,6 +30,7 @@ class Edge {
     } else {
       this.newName = newName;
     }
+    this.finalPath = finalPath;
   }
 
 
