@@ -5,7 +5,7 @@ final String REL_IS_A = "/r/IsA";
 final String REL_USED_FOR = "/r/UsedFor";
 
 //final String TARGET = "/c/en/money";
-final String TARGET = "money";
+final String TARGET = "person";
 
 Edge[] unownedEdges;
 JSONObject unownedJson;
@@ -37,6 +37,11 @@ void setup() {
   recurseCheck(levelDepth, chosenStart);
   
   println(successes.size());
+  for (int i = 0; i < successes.size(); i++) {
+    int[] success = successes.get(i);
+    println(i);
+    println(success);
+  }
 }
 
 
@@ -53,6 +58,8 @@ void setup() {
 public void recurseCheck(int level, String conceptPath) {
   Edge[] results = getSomeEdgeOf(false, "", "", conceptPath, edgeLimit, 0);
   for (int i = 0; i < results.length; i++) {
+    int l = levelDepth - level;
+    println("level: " + l + ", node: " + i);
     resultsTracker[levelDepth-level] = i; 
     if (results[i].finalPath.contains(TARGET)) {
       println("SUCCESS!!! at " + results[i].newName);
